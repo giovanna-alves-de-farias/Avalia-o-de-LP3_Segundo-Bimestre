@@ -9,7 +9,7 @@ class DatabaseSetup
     public DatabaseSetup(DatabaseConfig databaseConfig)
     {
         _databaseConfig = databaseConfig;
-        CreateProductsTable();
+        CreateProductTable();
     }
 
     private void CreateProductTable()

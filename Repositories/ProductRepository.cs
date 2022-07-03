@@ -19,15 +19,7 @@ class ProductRepository
         using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        using var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO Labs VALUES($id, $number, $name, $block)"; 
-        command.Parameters.AddWithValue("$id", product.Id);
-        command.Parameters.AddWithValue("$price", lab.Price);
-        command.Parameters.AddWithValue("name", lab.Name);
-        command.Parameters.AddWithValue("$active", lab.Active);
-            
-        command.ExecuteNonQuery();
-        connection.Close();
+        connection.Execute("INSERT INTO Products VALUES (@Id, @Name, @Price, @Active)", product);
 
         return product;
     }
@@ -38,12 +30,7 @@ class ProductRepository
         using var connection = new SqliteConnectionStringBuilder(_databaseConfig.ConnectionString);
         connection.Open();
 
-        using var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM Products WHERE id = $id"; 
-        command.Parameters.AddWithValue("$id", id);
-
-        command.ExecuteNonQuery();
-        connection.Close();
+        connection.Execute("DELETE FROM Products WHERE id = @Id", new {Id = id});
     }
 
     // Habilita um produto
