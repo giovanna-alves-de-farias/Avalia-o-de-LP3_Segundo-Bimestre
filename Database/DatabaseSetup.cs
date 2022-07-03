@@ -12,7 +12,7 @@ class DatabaseSetup
         CreateProductsTable();
     }
 
-    private void CreateProductsTable()
+    private void CreateProductTable()
     {
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
@@ -20,9 +20,10 @@ class DatabaseSetup
         var command = connection.CreateCommand();
         command.CommandText = @"
             CREATE TABLE IF NOT EXISTS Products(
-                id int not null primary key,
-                ram varchar(100) not null,
-                processor varchar(100) not null
+                id int primary key,
+                name varchar(255) not null,
+                price float(53) not null,
+                active bool not null
             );
         ";
 
