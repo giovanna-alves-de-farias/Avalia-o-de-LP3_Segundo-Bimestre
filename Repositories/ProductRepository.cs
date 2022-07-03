@@ -19,7 +19,9 @@ class ProductRepository
         using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        connection.Execute("INSERT INTO Products VALUES (@Id, @Name, @Price, @Active)", product);
+        connection.Execute(
+            "INSERT INTO Products VALUES (@Id, @Name, @Price, @Active)", 
+            product);
 
         return product;
     }
@@ -36,57 +38,76 @@ class ProductRepository
     // Habilita um produto
     public void Enable(int id);
     {
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
+
+        connection.Execute("UPDATE Products SET active = 1 WHERE id = @Id", new {Id = id});
     }
 
     // Desabilita um produto
     public void Disable(int id);
     {
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
+
+        connection.Execute("UPDATE Products SET active = 0 WHERE id = @Id", new {Id = id});
     }
 
     // Retorna todos os produtos
-    public List<Product> GetAll();
+    public IEnumerable<Product> GetAll()
     {
-        var products = new List<Product>();
-
-        var connection = new SqliteConnection("Data Source=database.db");
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM Products";
-
-        var reader = command.ExecuteReader();
-
-        while(reader.Read())
-        {
-            var id = Convert.ToInt32(args[2]);
-            var name = args[3];
-            var price = Convert.ToDouble(args[4]);
-            var active = Convert.ToBoolean(args[5]);
-
-            var product = new Product(id, name, price, active);
-        }
-        connection.Close();
-
-        return products;
+        return connection.Query<Product>("SELECT * FROM Products");
     }
 
     // Retorna os produtos dentro de um intervalo de preço
-    public List<Product> GetAllWithPriceBetween(double initialPrice, double endPrice);
+    public IEnumerable<Product> GetAllWithPriceBetween(double initialPrice, double endPrice);
     {
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
+
+        return connection.Query<Product>(
+            "SELECT * FROM Products WHERE price BETWEEN @InitialPrice AND @EndPrice", new {
+                InitialPrice = initialPrice, EndPrice = endPrice});
     }
 
     // Retorna os produtos com preço acima de um preço especificado
-    public List<Product> GetAllWithPriceHigherThan(double price);
+    public IEnumerable<Product> GetAllWithPriceHigherThan(double price);
     {
+         using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
+
+        return connection.Query<Product>(
+            "SELECT * FROM Products WHERE price > @Price", new {Price = price});
     }
 
     // Retorna os produtos com preço abaixo de um preço especificado
     public List<Product> GetAllWithPriceLowerThan(double price);
     {
+                using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
+
+        return connection.Query<Product>(
+            "SELECT * FROM Products WHERE price < @Price", new {Price = price}).ToList();
     }
 
     // Retorna a média dos preços dos produtos
     public double GetAveragePrice();
     {
-    }'
+        using var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
+
+        return connection.ExecuteScalar<double>("SELECT AVG(price) FROM Products");
+    }
+
+     public bool ExistsByID(int id) 
+    {
+        var connection = new SqliteConnection(_databaseConfig.ConnectionString);
+        connection.Open();
+
+        return connection.ExecuteScalar<Boolean>(
+            "SELECT count(id) FROM Products WHERE id = @Id", new {Id = id});
+    }
 }
