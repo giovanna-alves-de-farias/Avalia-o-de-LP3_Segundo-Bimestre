@@ -30,5 +30,4 @@ class DatabaseSetup
         command.ExecuteNonQuery();
         connection.Close();
     }
-
 }
